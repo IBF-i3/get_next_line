@@ -6,24 +6,116 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:20 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/09 15:27:12 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/18 02:40:27 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+static char	*combined_buffers(char *temp_buffer, char *read_buffer)
+{
+	char	*temp;
+
+	temp = ft_strjoin(temp_buffer, read_buffer);
+	free(temp_buffer);
+	return (temp);
+}
+
+static char	*read_file(char *temp_buffer, int fd)
+{
+	int		bytes_read;
+	char	*read_buffer;
+
+	read_buffer = ft_calloc((BUFFER_SIZE + 1), sizeof(char));
+	if (read_buffer == NULL)
+		return (NULL);
+	bytes_read = 1;
+	while (bytes_read > 0)
+	{
+		bytes_read = read(fd, read_buffer, BUFFER_SIZE);
+		if (bytes_read <= 0)
+			break ;
+		read_buffer[bytes_read] = '\0';
+		temp_buffer = combined_buffers(temp_buffer, read_buffer);
+		if (ft_strchr(temp_buffer, '\n'))
+			break ;
+	}
+	free(read_buffer);
+	return (temp_buffer);
+}
+
+static char	*extract_line(char *temp_buffer)
+{
+	int		i;
+	char	*line;
+
+	if (temp_buffer == NULL || temp_buffer[0] == '\0')
+		return (NULL);
+	i = 0;
+	while (temp_buffer[i] && temp_buffer[i] != '\n')
+		i++;
+	if (temp_buffer[i] == '\n')
+		i++;
+	line = ft_calloc(i + 1, sizeof(char));
+	if (line == NULL)
+		return (NULL);
+	i = 0;
+	while (temp_buffer[i] && temp_buffer[i] != '\n')
+	{
+		line[i] = temp_buffer[i];
+		i++;
+	}
+	if (temp_buffer[i] == '\n')
+		line[i++] = '\n';
+	line[i] = '\0';
+	return (line);
+}
+
+static char	*reset_buffer(char *temp_buffer)
+{
+	int		i;
+	int		j;
+	int		temp_buffer_len;
+	char	*new_buffer;
+
+	if (temp_buffer == NULL)
+		return (NULL);
+	i = 0;
+	while (temp_buffer[i] && temp_buffer[i] != '\n')
+		i++;
+	if (temp_buffer[i] == '\0')
+		return (free(temp_buffer), NULL);
+	temp_buffer_len = ft_strlen(temp_buffer + i);
+	new_buffer = ft_calloc(temp_buffer_len + 1, sizeof(char));
+	if (new_buffer == NULL)
+		return (free(temp_buffer), NULL);
+	i++;
+	j = 0;
+	while (temp_buffer[i])
+		new_buffer[j++] = temp_buffer[i++];
+	new_buffer[j] = '\0';
+	free(temp_buffer);
+	return (new_buffer);
+}
+
 char	*get_next_line(int fd)
 {
-	int	bytes_read;
-	char	*buffer;
+	static char	*temp_buffer;
+	char		*line;
 
 	if (fd < 0 || fd > MAX_FD || BUFFER_SIZE <= 0)
-		return(NULL);
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buffer)
 		return (NULL);
-	bytes_read = read(fd, buffer, BUFFER_SIZE);
-	if (bytes_read <= 0)
+	if (temp_buffer == NULL)
+		temp_buffer = ft_calloc(1, sizeof(char));
+	if (ft_strchr(temp_buffer, '\n') == NULL)
+		temp_buffer = read_file(temp_buffer, fd);
+	if (temp_buffer == NULL || temp_buffer[0] == '\0')
+	{
+		free(temp_buffer);
+		temp_buffer = NULL;
 		return (NULL);
-	return (buffer);
+	}
+	line = extract_line(temp_buffer);
+	temp_buffer = reset_buffer(temp_buffer);
+	return (line);
 }
