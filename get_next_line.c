@@ -6,7 +6,7 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:20 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/18 02:40:27 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/22 03:34:32 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,14 @@ static char	*read_file(char *temp_buffer, int fd)
 
 	read_buffer = ft_calloc((BUFFER_SIZE + 1), sizeof(char));
 	if (read_buffer == NULL)
-		return (NULL);
+		return (free(temp_buffer), NULL);
 	bytes_read = 1;
 	while (bytes_read > 0)
 	{
 		bytes_read = read(fd, read_buffer, BUFFER_SIZE);
-		if (bytes_read <= 0)
+		if (bytes_read < 0)
+			return (free(read_buffer), free(temp_buffer), NULL) ;
+		if (bytes_read == 0)
 			break ;
 		read_buffer[bytes_read] = '\0';
 		temp_buffer = combined_buffers(temp_buffer, read_buffer);
@@ -57,7 +59,10 @@ static char	*extract_line(char *temp_buffer)
 	if (temp_buffer[i] == '\n')
 		i++;
 	line = ft_calloc(i + 1, sizeof(char));
+	//if (temp_buffer == NULL)
+	//	return (NULL);
 	if (line == NULL)
+		//return (free(temp_buffer), NULL);
 		return (NULL);
 	i = 0;
 	while (temp_buffer[i] && temp_buffer[i] != '\n')
@@ -85,11 +90,13 @@ static char	*reset_buffer(char *temp_buffer)
 		i++;
 	if (temp_buffer[i] == '\0')
 		return (free(temp_buffer), NULL);
+	i++;
+	if (temp_buffer[i] == '\0')
+		return (free(temp_buffer), NULL);
 	temp_buffer_len = ft_strlen(temp_buffer + i);
 	new_buffer = ft_calloc(temp_buffer_len + 1, sizeof(char));
 	if (new_buffer == NULL)
 		return (free(temp_buffer), NULL);
-	i++;
 	j = 0;
 	while (temp_buffer[i])
 		new_buffer[j++] = temp_buffer[i++];
@@ -107,15 +114,29 @@ char	*get_next_line(int fd)
 		return (NULL);
 	if (temp_buffer == NULL)
 		temp_buffer = ft_calloc(1, sizeof(char));
+	if (temp_buffer == NULL)
+		return (NULL);
 	if (ft_strchr(temp_buffer, '\n') == NULL)
 		temp_buffer = read_file(temp_buffer, fd);
-	if (temp_buffer == NULL || temp_buffer[0] == '\0')
+	if (temp_buffer == NULL)
+		return (NULL);
+	if (temp_buffer[0] == '\0')
 	{
 		free(temp_buffer);
 		temp_buffer = NULL;
 		return (NULL);
 	}
 	line = extract_line(temp_buffer);
+	if (line == NULL)
+	{
+		free(temp_buffer);
+		temp_buffer = NULL;
+		return (NULL);
+	}
+	//if (line == NULL && temp_buffer != NULL)
+	//	free(temp_buffer);
+	//else
+	//	temp_buffer = reset_buffer(temp_buffer);
 	temp_buffer = reset_buffer(temp_buffer);
 	return (line);
 }

@@ -6,7 +6,7 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:34 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/17 21:37:37 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/22 00:50:04 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define GET_NEXT_LINE_H
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 3
+#  define BUFFER_SIZE 10
 # endif
 
 # ifndef MAX_FD
