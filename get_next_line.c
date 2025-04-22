@@ -6,7 +6,7 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:20 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/22 13:20:00 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/22 16:30:20 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,8 @@ static char	*reset_buffer(char *temp_buffer)
 	if (new_buffer == NULL)
 		return (free(temp_buffer), NULL);
 	j = 0;
-
+	while (temp_buffer[i] != '\0')
+		new_buffer[j++] = temp_buffer[i++];
 	new_buffer[j] = '\0';
 	free(temp_buffer);
 	return (new_buffer);
