@@ -12,8 +12,8 @@ Makefile
 *.elf
 
 # Main files
-main.c
-*/main.c
+#main.c
+#*/main.c
 main_argc.c
 */main_argc.c
 *.swp
