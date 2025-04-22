@@ -1,5 +1,5 @@
 Makefile
-.txt
+*.txt
 
 # Prerequisites
 *.d
