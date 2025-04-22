@@ -6,7 +6,7 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:20 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/22 03:34:32 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/22 04:38:18 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,12 @@ static char	*combined_buffers(char *temp_buffer, char *read_buffer)
 	char	*temp;
 
 	temp = ft_strjoin(temp_buffer, read_buffer);
+	if (temp == NULL)
+	{
+		free(temp_buffer);
+		free(read_buffer);
+		return (NULL);
+	}
 	free(temp_buffer);
 	return (temp);
 }
@@ -34,11 +40,13 @@ static char	*read_file(char *temp_buffer, int fd)
 	{
 		bytes_read = read(fd, read_buffer, BUFFER_SIZE);
 		if (bytes_read < 0)
-			return (free(read_buffer), free(temp_buffer), NULL) ;
+			return (free(read_buffer), free(temp_buffer), NULL);
 		if (bytes_read == 0)
 			break ;
 		read_buffer[bytes_read] = '\0';
 		temp_buffer = combined_buffers(temp_buffer, read_buffer);
+		if (temp_buffer == NULL)
+			return (NULL);
 		if (ft_strchr(temp_buffer, '\n'))
 			break ;
 	}
@@ -59,10 +67,7 @@ static char	*extract_line(char *temp_buffer)
 	if (temp_buffer[i] == '\n')
 		i++;
 	line = ft_calloc(i + 1, sizeof(char));
-	//if (temp_buffer == NULL)
-	//	return (NULL);
 	if (line == NULL)
-		//return (free(temp_buffer), NULL);
 		return (NULL);
 	i = 0;
 	while (temp_buffer[i] && temp_buffer[i] != '\n')
@@ -121,22 +126,10 @@ char	*get_next_line(int fd)
 	if (temp_buffer == NULL)
 		return (NULL);
 	if (temp_buffer[0] == '\0')
-	{
-		free(temp_buffer);
-		temp_buffer = NULL;
-		return (NULL);
-	}
+		return (free(temp_buffer), temp_buffer = NULL, NULL);
 	line = extract_line(temp_buffer);
 	if (line == NULL)
-	{
-		free(temp_buffer);
-		temp_buffer = NULL;
-		return (NULL);
-	}
-	//if (line == NULL && temp_buffer != NULL)
-	//	free(temp_buffer);
-	//else
-	//	temp_buffer = reset_buffer(temp_buffer);
+		return (free(temp_buffer), temp_buffer = NULL, NULL);
 	temp_buffer = reset_buffer(temp_buffer);
 	return (line);
 }
