@@ -6,25 +6,26 @@
 /*   By: ibenaven <ibenaven@student.42madrid.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/30 11:47:20 by ibenaven          #+#    #+#             */
-/*   Updated: 2025/04/22 04:38:18 by ibenaven         ###   ########.fr       */
+/*   Updated: 2025/04/22 04:53:26 by ibenaven         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*combined_buffers(char *temp_buffer, char *read_buffer)
+static void	combined_buffers(char **temp_buffer, char *read_buffer)
 {
 	char	*temp;
 
-	temp = ft_strjoin(temp_buffer, read_buffer);
+	temp = ft_strjoin(*temp_buffer, read_buffer);
 	if (temp == NULL)
 	{
-		free(temp_buffer);
+		free(*temp_buffer);
+		*temp_buffer = NULL;
 		free(read_buffer);
-		return (NULL);
+		return ;
 	}
-	free(temp_buffer);
-	return (temp);
+	free(*temp_buffer);
+	*temp_buffer = temp;
 }
 
 static char	*read_file(char *temp_buffer, int fd)
@@ -44,7 +45,7 @@ static char	*read_file(char *temp_buffer, int fd)
 		if (bytes_read == 0)
 			break ;
 		read_buffer[bytes_read] = '\0';
-		temp_buffer = combined_buffers(temp_buffer, read_buffer);
+		combined_buffers(&temp_buffer, read_buffer);
 		if (temp_buffer == NULL)
 			return (NULL);
 		if (ft_strchr(temp_buffer, '\n'))
